@@ -1,9 +1,19 @@
+"use client";
+
 import React from "react";
 import Categories from "./Categories";
+import PopularHotels from "./PopularHotels";
 import PostCards from "./PostCards";
-import { CategoriesCities, CategoriesType, Attractions } from "../../data";
+import {
+  CategoriesCities,
+  CategoriesType,
+  Attractions,
+  PopularHotelsData,
+} from "../../data";
+import useFetch from "../../../hooks/useFetch";
 
 const Feature: React.FC = () => {
+  const { data, loading, error } = useFetch("/hotels");
   return (
     <div className="w-full flex justify-center max-w-screen-lg mx-auto">
       <div className="w-full">
@@ -22,6 +32,12 @@ const Feature: React.FC = () => {
         </div>
         <div className="flex gap-4 overflow-x-scroll p-4">
           <Categories dataArray={CategoriesCities} />
+        </div>
+        <div className="mt-4">
+          <h2 className="px-4">人氣民宿、公寓類型住宿</h2>
+          <div className="flex gap-4 overflow-x-scroll p-4">
+            <PopularHotels dataArray={data} />
+          </div>
         </div>
       </div>
     </div>
