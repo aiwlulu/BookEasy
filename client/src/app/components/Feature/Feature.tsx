@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import Categories from "./Categories";
 import PopularHotels from "./PopularHotels";
 import PostCards from "./PostCards";
@@ -13,6 +13,35 @@ const Feature: React.FC = () => {
   const [categoriesType, setCategoriesType] = useState([]);
   const [categoriesCities, setCategoriesCities] = useState([]);
   const [updatedAttractions, setUpdatedAttractions] = useState(Attractions);
+
+  // ✅ 使用 useCallback 讓函式記憶化，避免不必要的重建
+  const getTypeImage = useCallback((type: string): string => {
+    const images: Record<string, string> = {
+      飯店: "https://cf.bstatic.com/xdata/images/xphoto/square300/57584488.webp?k=bf724e4e9b9b75480bbe7fc675460a089ba6414fe4693b83ea3fdd8e938832a6&o=",
+      公寓: "https://cf.bstatic.com/static/img/theme-index/carousel_320x240/card-image-apartments_300/9f60235dc09a3ac3f0a93adbc901c61ecd1ce72e.jpg",
+      度假村:
+        "https://cf.bstatic.com/static/img/theme-index/carousel_320x240/bg_resorts/6f87c6143fbd51a0bb5d15ca3b9cf84211ab0884.jpg",
+      Villa:
+        "https://cf.bstatic.com/static/img/theme-index/carousel_320x240/card-image-villas_300/dd0d7f8202676306a661aa4f0cf1ffab31286211.jpg",
+    };
+
+    return images[type] || images["飯店"]; // 預設為「飯店」
+  }, []);
+
+  const getCityImage = useCallback((city: string): string => {
+    const images: Record<string, string> = {
+      台南: "https://cf.bstatic.com/xdata/images/city/square250/687880.webp?k=a8f37ac28f438390034f6492e1ece731900df0f6133050a754123c969d7fc6d8&o=",
+      台中: "https://cf.bstatic.com/xdata/images/city/square250/687892.webp?k=0f5cc456997c9fa5b99510dc453534730620c0867d94630639c74b4c18641c71&o=",
+      宜蘭縣:
+        "https://cf.bstatic.com/xdata/images/region/square250/69956.webp?k=a79c8229fe2b508887961cafe02d79b9c45d42d7d06882f6d150af327e0adcdf&o=",
+      花蓮市:
+        "https://cf.bstatic.com/xdata/images/city/square250/687822.webp?k=4750fc80f938ae0b7c16d0ac306c30f949c9ad7baba7ab79cfb7940e991849b7&o=",
+      台東市:
+        "https://cf.bstatic.com/xdata/images/city/square250/687910.webp?k=ddda35cd7e422bfe96ee16fa84d4d63fe71e30fb738df85533c33c5a7365497f&o=",
+    };
+
+    return images[city] || images["台南"]; // 預設為「台南」
+  }, []);
 
   useEffect(() => {
     const fetchTypeAndCities = async () => {
@@ -70,7 +99,7 @@ const Feature: React.FC = () => {
     };
 
     fetchTypeAndCities();
-  }, []);
+  }, [getTypeImage, getCityImage]);
 
   return (
     <div className="w-full flex justify-center max-w-screen-lg mx-auto">
@@ -100,34 +129,6 @@ const Feature: React.FC = () => {
       </div>
     </div>
   );
-};
-
-const getTypeImage = (type: string): string => {
-  const images: Record<string, string> = {
-    飯店: "https://cf.bstatic.com/xdata/images/xphoto/square300/57584488.webp?k=bf724e4e9b9b75480bbe7fc675460a089ba6414fe4693b83ea3fdd8e938832a6&o=",
-    公寓: "https://cf.bstatic.com/static/img/theme-index/carousel_320x240/card-image-apartments_300/9f60235dc09a3ac3f0a93adbc901c61ecd1ce72e.jpg",
-    度假村:
-      "https://cf.bstatic.com/static/img/theme-index/carousel_320x240/bg_resorts/6f87c6143fbd51a0bb5d15ca3b9cf84211ab0884.jpg",
-    Villa:
-      "https://cf.bstatic.com/static/img/theme-index/carousel_320x240/card-image-villas_300/dd0d7f8202676306a661aa4f0cf1ffab31286211.jpg",
-  };
-
-  return images[type] || images["飯店"]; // 預設為「飯店」
-};
-
-const getCityImage = (city: string): string => {
-  const images: Record<string, string> = {
-    台南: "https://cf.bstatic.com/xdata/images/city/square250/687880.webp?k=a8f37ac28f438390034f6492e1ece731900df0f6133050a754123c969d7fc6d8&o=",
-    台中: "https://cf.bstatic.com/xdata/images/city/square250/687892.webp?k=0f5cc456997c9fa5b99510dc453534730620c0867d94630639c74b4c18641c71&o=",
-    宜蘭縣:
-      "https://cf.bstatic.com/xdata/images/region/square250/69956.webp?k=a79c8229fe2b508887961cafe02d79b9c45d42d7d06882f6d150af327e0adcdf&o=",
-    花蓮市:
-      "https://cf.bstatic.com/xdata/images/city/square250/687822.webp?k=4750fc80f938ae0b7c16d0ac306c30f949c9ad7baba7ab79cfb7940e991849b7&o=",
-    台東市:
-      "https://cf.bstatic.com/xdata/images/city/square250/687910.webp?k=ddda35cd7e422bfe96ee16fa84d4d63fe71e30fb738df85533c33c5a7365497f&o=",
-  };
-
-  return images[city] || images["台南"]; // 預設為「台南」
 };
 
 export default Feature;

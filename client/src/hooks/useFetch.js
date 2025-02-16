@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 
 const useFetch = (url) => {
@@ -7,7 +7,7 @@ const useFetch = (url) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true);
     try {
       const apiUrl = url.startsWith("/api/v1") ? url : `/api/v1${url}`;
@@ -17,13 +17,13 @@ const useFetch = (url) => {
       setError(error.response?.data || error.message);
     }
     setLoading(false);
-  };
+  }, [url]);
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [fetchData]);
 
-  return { data, loading, error };
+  return { data, loading, error, refetch: fetchData };
 };
 
 export default useFetch;
