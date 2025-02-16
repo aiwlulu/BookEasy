@@ -5,6 +5,8 @@ import {
   updatedHotel,
   deleteHotel,
   getAllHotels,
+  amountOfType,
+  amountOfCities,
 } from "../RoutesController/hotels.js";
 import { verifyAdmin } from "../JWT_Token.js";
 
@@ -24,5 +26,11 @@ router.put("/:id", verifyAdmin, updatedHotel);
 
 // 刪除飯店資料 (需管理員權限)
 router.delete("/:id", verifyAdmin, deleteHotel);
+
+// 取得不同類型飯店的數量 (公開)
+router.get("/amountoftype", amountOfType);
+
+// 取得不同城市的飯店數量 (公開)
+router.get("/amountofcities", amountOfCities);
 
 export default router;
