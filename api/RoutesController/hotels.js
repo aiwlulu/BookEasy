@@ -28,7 +28,27 @@ const getHotel = async (req, res, next) => {
 // 取得所有飯店資料
 const getAllHotels = async (req, res, next) => {
   try {
-    const hotels = await Hotel.find();
+    let filters = {}; // 初始化篩選條件
+
+    // 取得 query 參數
+    const { popularHotel, type, city } = req.query;
+
+    // 篩選熱門飯店
+    if (popularHotel) {
+      filters.popularHotel = popularHotel === "true"; // 確保轉換為 Boolean
+    }
+
+    // 篩選特定類型 (支援多種類型)
+    if (type) {
+      filters.type = { $in: type.split(",") };
+    }
+
+    // 篩選特定城市 (支援多個城市)
+    if (city) {
+      filters.city = { $in: city.split(",") };
+    }
+
+    const hotels = await Hotel.find(filters);
     res.status(200).json(hotels);
   } catch (error) {
     next(errorMessage(400, "取得飯店資料失敗", error));
@@ -72,4 +92,74 @@ const deleteHotel = async (req, res, next) => {
   }
 };
 
-export { createHotel, getHotel, getAllHotels, updatedHotel, deleteHotel };
+// 取得不同類型飯店的數量，支援多種類型篩選
+const amountOfType = async (req, res, next) => {
+  try {
+    let types = req.query.type;
+
+    // 確保 types 是陣列 (若為字串則拆分)
+    if (types) {
+      types = types.split(",");
+    }
+
+    let matchStage = {}; // 預設不篩選類型
+    if (types && types.length > 0) {
+      matchStage = { type: { $in: types } };
+    }
+
+    const hotelTypeCount = await Hotel.aggregate([
+      { $match: matchStage }, // 根據類型篩選
+      {
+        $group: {
+          _id: "$type",
+          count: { $sum: 1 },
+        },
+      },
+    ]);
+
+    res.status(200).json(hotelTypeCount);
+  } catch (error) {
+    next(errorMessage(400, "取得飯店類型數量失敗", error));
+  }
+};
+
+// 取得不同城市的飯店數量，支援多個城市篩選
+const amountOfCities = async (req, res, next) => {
+  try {
+    let cities = req.query.city;
+
+    // 確保 cities 是陣列 (若為字串則拆分)
+    if (cities) {
+      cities = cities.split(",");
+    }
+
+    let matchStage = {}; // 預設不篩選
+    if (cities && cities.length > 0) {
+      matchStage = { city: { $in: cities } };
+    }
+
+    const hotelCityCount = await Hotel.aggregate([
+      { $match: matchStage }, // 根據城市篩選
+      {
+        $group: {
+          _id: "$city",
+          count: { $sum: 1 },
+        },
+      },
+    ]);
+
+    res.status(200).json(hotelCityCount);
+  } catch (error) {
+    next(errorMessage(400, "取得飯店城市數量失敗", error));
+  }
+};
+
+export {
+  createHotel,
+  getHotel,
+  getAllHotels,
+  updatedHotel,
+  deleteHotel,
+  amountOfType,
+  amountOfCities,
+};

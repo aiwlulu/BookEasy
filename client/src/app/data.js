@@ -129,6 +129,7 @@ export const CategoriesCities = [
     img: "https://cf.bstatic.com/xdata/images/city/square250/687789.webp?k=e17d0b828562952dbc0c784eabfdc20b8720e61ed16aa6e8aa65752cbcd439c3&o=",
   },
 ];
+
 export const Attractions = [
   {
     id: 0,
@@ -164,53 +165,5 @@ export const Attractions = [
     flag: "https://cf.bstatic.com/static/img/flags/24/tw/814f389fe6b5d9dd6ee86050534b7643b3c1dbe8.png",
     amount: "560 間住宿",
     img: "https://cf.bstatic.com/xdata/images/city/540x270/687887.webp?k=66079e811213908cc815d1df8ec3f5bb1feff7ef6b055a52aa7f14026cfad5c7&o=",
-  },
-];
-
-export const PopularHotelsData = [
-  {
-    id: 0,
-    name: "帕特奧斯昂托艾斯特瓦",
-    place: "里斯本",
-    price: 8535,
-    rate: 9.3,
-    comment: 275,
-    img: "https://cf.bstatic.com/xdata/images/hotel/max500/103951224.jpg?k=03736dd4e1e89c1132e4957149e394d01ac6e8f64f4b09e30ade97a6176f0640&o=",
-  },
-  {
-    id: 1,
-    name: "納沃納菲奧雷公寓",
-    place: "斯普利特",
-    price: 7903,
-    rate: 9.6,
-    comment: 463,
-    img: "https://cf.bstatic.com/xdata/images/hotel/max500/40890517.jpg?k=cd55de5463af8988f78fd675904a43d02f77570debe9977c4c1fe658030b6d29&o=",
-  },
-  {
-    id: 2,
-    name: "競技場浪漫公寓",
-    place: "羅馬",
-    price: 5903,
-    rate: 9.6,
-    comment: 463,
-    img: "https://cf.bstatic.com/xdata/images/hotel/max500/109169996.jpg?k=82bee70e09800d9254479024406baebaf45c1482c6627ef44ee35e1df5110dc5&o=",
-  },
-  {
-    id: 3,
-    name: "城市公園露台公寓",
-    place: "布達佩斯",
-    price: 3501,
-    rate: 9.7,
-    comment: 123,
-    img: "https://cf.bstatic.com/xdata/images/hotel/max500/109169996.jpg?k=82bee70e09800d9254479024406baebaf45c1482c6627ef44ee35e1df5110dc5&o=",
-  },
-  {
-    id: 4,
-    name: "Hyde Park Residence",
-    place: "倫敦",
-    price: 453112,
-    rate: 9.8,
-    comment: 6,
-    img: "https://cf.bstatic.com/xdata/images/hotel/max500/100210804.jpg?k=b4266521a7d7dd6165b0c37f1d18382eeab462ae18efbe779bcfb48b460c06b6&o=",
   },
 ];
