@@ -9,6 +9,7 @@ import {
   faToriiGate,
 } from "@fortawesome/free-solid-svg-icons";
 import { IconDefinition } from "@fortawesome/fontawesome-svg-core";
+import Link from "next/link";
 
 const options = [
   { id: "stay", icon: faBed, label: "住宿" },
@@ -53,12 +54,9 @@ const Navbar: React.FC = () => {
     <div className="w-full h-40 mx-auto bg-blue-500 text-white flex justify-center">
       <div className="w-11/12 h-full max-w-screen-lg">
         <div className="flex h-1/2 items-center justify-between">
-          <span
-            className="text-xl cursor-pointer"
-            onClick={() => (window.location.href = "/")}
-          >
+          <Link href="/" className="text-xl cursor-pointer">
             BOOKEASY
-          </span>
+          </Link>
 
           <div className="flex items-center gap-4">
             <button
@@ -68,12 +66,18 @@ const Navbar: React.FC = () => {
             <button className="text-sm px-4 py-2 border border-white bg-blue-500 text-white hover:bg-blue-700">
               測試
             </button>
-            <button className="text-sm px-4 py-2 bg-white text-blue-500 hover:bg-gray-200">
+            <Link
+              href="/register"
+              className="text-sm px-4 py-2 bg-white text-blue-500 hover:bg-gray-200"
+            >
               註冊
-            </button>
-            <button className="text-sm px-4 py-2 bg-white text-blue-500 hover:bg-gray-200">
+            </Link>
+            <Link
+              href="/login"
+              className="text-sm px-4 py-2 bg-white text-blue-500 hover:bg-gray-200"
+            >
               登入
-            </button>
+            </Link>
           </div>
         </div>
         <div className="flex h-1/2 items-start gap-5">
