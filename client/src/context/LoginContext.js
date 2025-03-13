@@ -1,10 +1,11 @@
+"use client";
 import { createContext, useEffect, useReducer } from "react";
 import {
   login_failure,
   login_success,
   logout,
   start_login,
-} from "../constants/actionTypes";
+} from "../constants/actionType";
 
 const INITIAL_STATE = {
   user: JSON.parse(localStorage.getItem("user")) || null,
