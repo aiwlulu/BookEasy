@@ -58,4 +58,26 @@ const login = async (req, res, next) => {
   }
 };
 
-export { register, login };
+const logout = (req, res) => {
+  res.clearCookie("JWT_token").status(200).json("登出成功");
+};
+
+const verifyJWT = (req, res, next) => {
+  const token = req.cookies.JWT_token;
+  if (!token) return next(errorMessage(401, "請先登入"));
+
+  jwt.verify(token, process.env.JWT, async (err, decoded) => {
+    if (err) return next(errorMessage(403, "TOKEN 無效"));
+
+    try {
+      const user = await User.findById(decoded.id).select("-password");
+      if (!user) return next(errorMessage(404, "使用者不存在"));
+
+      res.status(200).json(user);
+    } catch (error) {
+      next(errorMessage(500, "伺服器錯誤"));
+    }
+  });
+};
+
+export { register, login, logout, verifyJWT };
