@@ -1,5 +1,4 @@
 "use client";
-import { useSearchParams } from "next/navigation";
 import React, { useState, useRef, useCallback, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCalendarAlt } from "@fortawesome/free-solid-svg-icons";
@@ -10,6 +9,7 @@ import "react-date-range/dist/theme/default.css";
 import zhTW from "date-fns/locale/zh-TW";
 
 import SearchItem from "./SearchItem";
+import { useOptions } from "@/context/OptionsContext";
 
 interface SelectionRange {
   startDate: Date;
@@ -22,23 +22,10 @@ const icons = {
 };
 
 const HotelList = () => {
-  const searchParams = useSearchParams();
+  const { city, setCity, options, date, setDate } = useOptions();
 
-  const destination = searchParams?.get("destination") || "";
-  const dateRange = searchParams?.get("dateRange") || "";
-  const guests = searchParams?.get("guests") || "";
-
-  const [adults, children, rooms] = guests.split(",").map(Number);
-
+  // 控制日期選擇器的顯示狀態
   const [isOpen, setIsOpen] = useState(false);
-  const [dateRangeText, setDateRangeText] = useState("");
-
-  const [selectionRange, setSelectionRange] = useState<SelectionRange>({
-    startDate: new Date(),
-    endDate: new Date(),
-    key: "selection",
-  });
-
   const datePickerRef = useRef<HTMLDivElement>(null);
 
   const handleClickOutside = useCallback((event: MouseEvent) => {
@@ -52,30 +39,33 @@ const HotelList = () => {
 
   useEffect(() => {
     document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [handleClickOutside]);
+
+  const selectionRange: SelectionRange = {
+    startDate: date.startDate,
+    endDate: date.endDate,
+    key: "selection",
+  };
 
   const handleSelect = (ranges: RangeKeyDict) => {
     const { startDate, endDate } = ranges.selection;
-
     if (startDate && endDate) {
-      setSelectionRange({
-        startDate: startDate,
-        endDate: endDate,
-        key: "selection",
-      });
-      setDateRangeText(
-        `${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()}`
-      );
+      setDate({ startDate, endDate });
     }
+  };
+
+  const computedDateRange = `${date.startDate.toLocaleDateString()} - ${date.endDate.toLocaleDateString()}`;
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setCity(e.target.value);
   };
 
   return (
     <div className="bg-gray-100 min-h-screen py-8">
       <div className="container mx-auto px-4">
         <div className="flex flex-col md:flex-row gap-4">
+          {/* 搜尋側邊欄 */}
           <div className="w-full md:w-1/4">
             <div className="bg-white rounded-lg shadow-md overflow-hidden">
               <div className="bg-blue-600 p-4 text-white text-lg font-semibold">
@@ -90,7 +80,8 @@ const HotelList = () => {
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     type="text"
                     placeholder="要去哪裡？"
-                    value={destination}
+                    value={city}
+                    onChange={handleInputChange}
                   />
                 </div>
                 <div>
@@ -106,7 +97,7 @@ const HotelList = () => {
                       />
                       <input
                         type="text"
-                        value={dateRange}
+                        value={computedDateRange}
                         onClick={() => setIsOpen(!isOpen)}
                         readOnly
                         className="w-full pl-2 pr-3 py-2 focus:outline-none text-gray-500 rounded-md"
@@ -145,7 +136,7 @@ const HotelList = () => {
                   </div>
                 </div>
                 <div className="text-sm text-gray-600">
-                  {`${adults}位成人 · ${children}位小孩 · ${rooms}間房間`}
+                  {`${options.adult}位成人 · ${options.children}位小孩 · ${options.room}間房間`}
                 </div>
                 <button className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition duration-300">
                   搜尋
@@ -153,11 +144,12 @@ const HotelList = () => {
               </div>
             </div>
           </div>
+          {/* 住宿列表區 */}
           <div className="w-full md:w-3/4">
             <div className="bg-white rounded-lg shadow-md p-4 mb-6">
               <div className="flex justify-between items-center">
                 <h2 className="text-xl font-semibold text-gray-800">
-                  在台北找到505間房間
+                  在{city || "目的地"}找到X間房間
                 </h2>
                 <button className="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition duration-300">
                   在地圖上顯示

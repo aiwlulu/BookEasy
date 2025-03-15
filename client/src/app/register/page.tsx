@@ -1,9 +1,12 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import Link from "next/link";
 import Navbar from "../components/NavBar";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import * as Dialog from "@radix-ui/react-dialog";
+import { LoginContext } from "../../context/LoginContext";
+import { login_success } from "../../constants/actionType";
 
 interface RegisterData {
   username: string;
@@ -26,6 +29,8 @@ const RegisterPage: React.FC = () => {
     checkpassword: "",
   });
   const router = useRouter();
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const { dispatch } = useContext(LoginContext);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setRegisterData((prev) => ({
@@ -34,11 +39,15 @@ const RegisterPage: React.FC = () => {
     }));
   };
 
-  const handleClick = async (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
     try {
-      const res = await axios.post("/api/v1/auth/register", registerData);
-      router.push("/login");
+      await axios.post("/api/v1/auth/register", registerData);
+
+      dispatch({ type: login_success, payload: registerData });
+
+      setIsModalOpen(true);
     } catch (err: any) {
       setError(err.response?.data?.message || "註冊失敗");
     }
@@ -66,7 +75,7 @@ const RegisterPage: React.FC = () => {
               註冊帳戶
             </h2>
           </div>
-          <form className="mt-8 space-y-6">
+          <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
             <div className="space-y-4 rounded-md">
               <div>
                 <label htmlFor="username" className="sr-only">
@@ -145,7 +154,6 @@ const RegisterPage: React.FC = () => {
               <button
                 type="submit"
                 className="group relative flex w-full justify-center rounded-md bg-blue-500 px-4 py-3 text-sm font-semibold text-white hover:bg-blue-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
-                onClick={handleClick}
               >
                 註冊
               </button>
@@ -168,6 +176,31 @@ const RegisterPage: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* 註冊成功 Modal (Radix UI) */}
+      <Dialog.Root open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <Dialog.Portal>
+          <Dialog.Overlay className="fixed inset-0 bg-black/50" />
+          <Dialog.Content className="fixed top-1/2 left-1/2 w-full max-w-md -translate-x-1/2 -translate-y-1/2 rounded-lg bg-white p-6 shadow-lg">
+            <Dialog.Title className="text-xl font-semibold text-gray-900">
+              🎉 註冊成功！
+            </Dialog.Title>
+            <Dialog.Description className="mt-2 text-gray-600">
+              您的帳號已成功建立，請點擊「確定」前往登入頁面。
+            </Dialog.Description>
+            <div className="mt-4 flex justify-end">
+              <Dialog.Close asChild>
+                <button
+                  className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                  onClick={() => router.push("/login")}
+                >
+                  確定
+                </button>
+              </Dialog.Close>
+            </div>
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog.Root>
     </div>
   );
 };
