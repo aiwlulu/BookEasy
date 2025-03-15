@@ -2,7 +2,7 @@
 import React, { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 
-const useFetch = (url) => {
+const useFetch = (url: string) => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -13,7 +13,7 @@ const useFetch = (url) => {
       const apiUrl = url.startsWith("/api/v1") ? url : `/api/v1${url}`;
       const response = await axios.get(apiUrl);
       setData(response.data);
-    } catch (error) {
+    } catch (error: any) {
       setError(error.response?.data || error.message);
     }
     setLoading(false);

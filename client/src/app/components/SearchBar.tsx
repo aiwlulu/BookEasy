@@ -12,6 +12,8 @@ import "react-date-range/dist/theme/default.css"; // theme css file
 import zhTW from "date-fns/locale/zh-TW";
 import DOMPurify from "dompurify";
 import { useRouter } from "next/navigation";
+import { useOptions } from "@/context/OptionsContext";
+
 interface SelectionRange {
   startDate: Date;
   endDate: Date;
@@ -25,28 +27,15 @@ const icons = {
 };
 
 const SearchBar = () => {
-  const [destination, setDestination] = useState("");
-  const [selectionRange, setSelectionRange] = useState<SelectionRange>({
-    startDate: new Date(),
-    endDate: new Date(),
-    key: "selection",
-  });
+  const { city, setCity, options, setOptions, date, setDate } = useOptions();
+  const router = useRouter();
+
+  // 控制日期選擇器與客房選擇顯示狀態
   const [isOpen, setIsOpen] = useState(false);
   const [openGuests, setOpenGuests] = useState(false);
-  const [guests, setGuests] = useState("1 位成人 · 0 位小孩 · 1 間房");
-  const [dateRangeText, setDateRangeText] = useState("");
-  const [adults, setAdults] = useState(1);
-  const [children, setChildren] = useState(0);
-  const [rooms, setRooms] = useState(1);
 
   const datePickerRef = useRef<HTMLDivElement>(null);
   const guestsRef = useRef<HTMLDivElement>(null);
-
-  const router = useRouter();
-
-  useEffect(() => {
-    setGuests(`${adults} 位成人 · ${children} 位小孩 · ${rooms} 間房`);
-  }, [adults, children, rooms]);
 
   const handleClickOutside = useCallback((event: MouseEvent) => {
     if (
@@ -65,23 +54,19 @@ const SearchBar = () => {
 
   useEffect(() => {
     document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [handleClickOutside]);
+
+  const selectionRange: SelectionRange = {
+    startDate: date.startDate,
+    endDate: date.endDate,
+    key: "selection",
+  };
 
   const handleSelect = (ranges: RangeKeyDict) => {
     const { startDate, endDate } = ranges.selection;
-
     if (startDate && endDate) {
-      setSelectionRange({
-        startDate: startDate,
-        endDate: endDate,
-        key: "selection",
-      });
-      setDateRangeText(
-        `${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()}`
-      );
+      setDate({ startDate, endDate });
     }
   };
 
@@ -89,34 +74,43 @@ const SearchBar = () => {
     type: "adults" | "children" | "rooms",
     operation: "increase" | "decrease"
   ) => {
-    const setter =
-      type === "adults"
-        ? setAdults
-        : type === "children"
-        ? setChildren
-        : setRooms;
-    const value =
-      type === "adults" ? adults : type === "children" ? children : rooms;
-
-    if (operation === "increase") {
-      setter((prev) => prev + 1);
-    } else if (value > 1 || (type === "children" && value > 0)) {
-      setter((prev) => prev - 1);
-    }
+    setOptions((prev) => {
+      const currentVal =
+        type === "adults"
+          ? prev.adult
+          : type === "children"
+          ? prev.children
+          : prev.room;
+      let newValue = currentVal;
+      if (operation === "increase") {
+        newValue = currentVal + 1;
+      } else {
+        if (
+          (type === "adults" && currentVal > 1) ||
+          (type === "rooms" && currentVal > 1) ||
+          (type === "children" && currentVal > 0)
+        ) {
+          newValue = currentVal - 1;
+        }
+      }
+      return {
+        ...prev,
+        [type === "adults"
+          ? "adult"
+          : type === "children"
+          ? "children"
+          : "room"]: newValue,
+      };
+    });
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const sanitizedInput = DOMPurify.sanitize(e.target.value);
-    setDestination(sanitizedInput);
+    setCity(sanitizedInput);
   };
 
   const handleSearch = () => {
-    const searchParams = new URLSearchParams({
-      destination,
-      dateRange: dateRangeText,
-      guests: `${adults},${children},${rooms}`,
-    });
-    router.push(`/hotelList?${searchParams.toString()}`);
+    router.push("/hotelList");
   };
 
   return (
@@ -129,7 +123,7 @@ const SearchBar = () => {
         <input
           type="text"
           id="destination"
-          value={destination}
+          value={city}
           onChange={handleInputChange}
           className="w-full pl-2 pr-3 py-2 focus:outline-none text-gray-500 rounded-md"
           placeholder="你要去哪裡？"
@@ -145,7 +139,7 @@ const SearchBar = () => {
           />
           <input
             type="text"
-            value={dateRangeText}
+            value={`${date.startDate.toLocaleDateString()} - ${date.endDate.toLocaleDateString()}`}
             onClick={() => setIsOpen(!isOpen)}
             readOnly
             className="w-full pl-2 pr-3 py-2 focus:outline-none text-gray-500 rounded-md"
@@ -174,7 +168,9 @@ const SearchBar = () => {
           icon={icons.user}
           className="text-gray-400 w-4 h-4 ml-4 mr-2 flex-shrink-0"
         />
-        <div className="pl-2 pr-3 py-2 text-gray-400 truncate">{guests}</div>
+        <div className="pl-2 pr-3 py-2 text-gray-400 truncate">
+          {`${options.adult} 位成人 · ${options.children} 位小孩 · ${options.room} 間房`}
+        </div>
       </div>
       {openGuests && (
         <div
@@ -209,10 +205,10 @@ const SearchBar = () => {
                   </button>
                   <div className="mx-5 w-8 text-center text-gray-500">
                     {type === "adults"
-                      ? adults
+                      ? options.adult
                       : type === "children"
-                      ? children
-                      : rooms}
+                      ? options.children
+                      : options.room}
                   </div>
                   <button
                     onClick={() =>
