@@ -47,7 +47,7 @@ const RegisterPage: React.FC = () => {
 
       dispatch({ type: login_success, payload: registerData });
 
-      router.push("/login");
+      setIsModalOpen(true);
     } catch (err: any) {
       setError(err.response?.data?.message || "註冊失敗");
     }
